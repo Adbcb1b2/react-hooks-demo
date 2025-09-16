@@ -27,8 +27,24 @@ function App() {
   // Use Effect Statement
   useEffect(() => {getArticles()}, []); // Empty square brackets ensures the code is only called once - after first render
 
+
   // Get the selected articles content, or none if no article is selected
   const selectedArticle = (articles[selectedArticleId]) ? articles[selectedArticleId].content : 'none';
+
+  // When an article is selected, populate the form fields with its data
+  useEffect(() => {
+    // If the selected article id is valid, populate the form fields with its data
+    if (validSelectedArticleId()) {
+      // Populate the form fields with the selected article's data
+      setFormObject({
+        title: articles[selectedArticleId].title || '',
+        content: articles[selectedArticleId].content || ''
+      });
+    } else {
+      // If no valid article is selected, reset the form fields to initial values
+      setFormObject(initialFormObject);
+    }
+  }, [selectedArticleId, articles]);
 
   // Get a new value for the field being changed andassign it to the property of the same name in formObject
   const changeHandler = function(event: any) {
@@ -75,6 +91,13 @@ function App() {
         <span className={'bold'}>Controls</span><br/>
         <button onClick={() => setArticles([...articles, formObject])}>Add Article</button>&nbsp;
         <button disabled={!validSelectedArticleId()} onClick={() => deleteSelected()}>Delete Selected</button>
+        <button disabled={!validSelectedArticleId()} onClick={() => {
+          if (validSelectedArticleId()) {
+            const updatedArticles = [...articles];
+            updatedArticles[selectedArticleId] = { ...formObject };
+            setArticles(updatedArticles);
+          }
+        }}>Update Article</button>
         <br />
         <input type={'text'} name={'title'} placeholder={'title'} value={formObject.title} onChange= {(e)=>changeHandler(e)}/>
         <br />
